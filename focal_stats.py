@@ -85,7 +85,6 @@ def rasterSTD(raster, mask, rInfo, iterations=1):
     (uh, uw) = u.shape
 
     out = np.zeros(u.shape, dtype=rInfo.dataType)
-
     for w in range(uw-dx-1):
         for h in range(uh-dy-1):
             s = u[h:h+mh,w:w+mw]#*mask
