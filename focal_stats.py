@@ -17,6 +17,7 @@ GDT_CInt16 = 8, GDT_CInt32 = 9, GDT_CFloat32 = 10, GDT_CFloat64 = 11,
 GDT_TypeCount = 12
 """
 
+
 dataTypes = {gdal.GDT_Byte : int, #@UndefinedVariable
             gdal.GDT_UInt16 : int, #@UndefinedVariable
             gdal.GDT_Int16 : int, #@UndefinedVariable
@@ -68,23 +69,23 @@ class rasterInfo(object):
 
 def rasterSTD(raster, mask, rInfo, iterations=1):
     u = raster
-    noDataArray = np.where(u < 0)
+    noDataArray = np.where(np.isnan(u))
     (mh, mw) = mask.shape
-    
+    #print(noDataArray)
     dx = mw//2
     dy = mh//2
 
     for x in range(dx):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=1)
-        u = np.insert(u, u.shape[1], rInfo.noDataValue, axis=1)
-
+        u = np.insert(u, 0, np.nan, axis=1)
+        u = np.insert(u, u.shape[1], np.nan, axis=1)
     for y in range(dy):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=0)
-        u = np.insert(u, u.shape[0], rInfo.noDataValue, axis=0)
+        u = np.insert(u, 0, np.nan, axis=0)
+        u = np.insert(u, u.shape[0], np.nan, axis=0)
 
     (uh, uw) = u.shape
 
-    out = np.zeros(u.shape, dtype=rInfo.dataType)
+    out = np.zeros(u.shape, dtype=float)
+    #print(rInfo.dataType)
     for w in range(uw-dx-1):
         for h in range(uh-dy-1):
             s = u[h:h+mh,w:w+mw]#*mask
@@ -93,26 +94,28 @@ def rasterSTD(raster, mask, rInfo, iterations=1):
             a = np.asarray(s)
             m = np.std(a) 
             out[h+dy,w+dx] = m
-    out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
+            
+    if len(noDataArray[0]) != 0:
+        out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
     return out[dy:-dy,dx:-dx]
 
 
 
 def rasterSum(raster, mask, rInfo, iterations=1):
     u = raster
-    noDataArray = np.where(u < 0)
+    noDataArray = np.where(np.isnan(u))
     (mh, mw) = mask.shape
 
     dx = mw//2
     dy = mh//2
     for x in range(dx):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=1) #@UndefinedVariable
-        u = np.insert(u, u.shape[1], rInfo.noDataValue, axis=1)
+        u = np.insert(u, 0, np.nan, axis=1)
+        u = np.insert(u, u.shape[1], np.nan, axis=1)
     for y in range(dy):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=0)
-        u = np.insert(u, u.shape[0], rInfo.noDataValue, axis=0)
+        u = np.insert(u, 0, np.nan, axis=0)
+        u = np.insert(u, u.shape[0], np.nan, axis=0)
     (uh, uw) = u.shape
-    out = np.zeros(u.shape, dtype=rInfo.dataType)
+    out = np.zeros(u.shape, dtype=float)
 
     for w in range(uw-dx):
         for h in range(uh-dy):
@@ -123,27 +126,27 @@ def rasterSum(raster, mask, rInfo, iterations=1):
             else:
                 m = np.sum(s)
                 out[h+dy,w+dx] = m
-
-    out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
+    if len(noDataArray[0]) != 0:
+        out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
     return out[dy:-dy,dx:-dx]
 
 
 
 def rasterMax(raster, mask, rInfo, iterations=1):
     u = raster
-    noDataArray = np.where(u < 0)
+    noDataArray = np.where(np.isnan(u))
     (mh, mw) = mask.shape
 
     dx = mw//2
     dy = mh//2
     for x in range(dx):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=1) #@UndefinedVariable
-        u = np.insert(u, u.shape[1], rInfo.noDataValue, axis=1)
+        u = np.insert(u, 0, np.nan, axis=1)
+        u = np.insert(u, u.shape[1], np.nan, axis=1)
     for y in range(dy):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=0)
-        u = np.insert(u, u.shape[0], rInfo.noDataValue, axis=0)
+        u = np.insert(u, 0, np.nan, axis=0)
+        u = np.insert(u, u.shape[0], np.nan, axis=0)
     (uh, uw) = u.shape
-    out = np.zeros(u.shape, dtype=rInfo.dataType)
+    out = np.zeros(u.shape, dtype=float)
 
     for w in range(uw-dx):
         for h in range(uh-dy):
@@ -154,25 +157,26 @@ def rasterMax(raster, mask, rInfo, iterations=1):
             else:
                 m = np.max(s)
                 out[h+dy,w+dx] = m
-    out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
+    if len(noDataArray[0]) != 0:
+        out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
     return out[dy:-dy,dx:-dx]
 
 
 def rasterMin(raster, mask, rInfo, iterations=1):
     u = raster
-    noDataArray = np.where(u < 0)
+    noDataArray = np.where(np.isnan(u))
     (mh, mw) = mask.shape
 
     dx = mw//2
     dy = mh//2
     for x in range(dx):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=1) #@UndefinedVariable
-        u = np.insert(u, u.shape[1], rInfo.noDataValue, axis=1)
+        u = np.insert(u, 0, np.nan, axis=1)
+        u = np.insert(u, u.shape[1], np.nan, axis=1)
     for y in range(dy):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=0)
-        u = np.insert(u, u.shape[0], rInfo.noDataValue, axis=0)
+        u = np.insert(u, 0, np.nan, axis=0)
+        u = np.insert(u, u.shape[0], np.nan, axis=0)
     (uh, uw) = u.shape
-    out = np.zeros(u.shape, dtype=rInfo.dataType)
+    out = np.zeros(u.shape, dtype=float)
 
     for w in range(uw-dx):
         for h in range(uh-dy):
@@ -183,25 +187,26 @@ def rasterMin(raster, mask, rInfo, iterations=1):
             else:
                 m = np.min(s)
                 out[h+dy,w+dx] = m
-    out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
+    if len(noDataArray[0]) != 0:
+        out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
     return out[dy:-dy,dx:-dx]
 
 
 def rasterRange(raster, mask, rInfo, iterations=1):
     u = raster
-    noDataArray = np.where(u < 0)
+    noDataArray = np.where(np.isnan(u))
     (mh, mw) = mask.shape
 
     dx = mw//2
     dy = mh//2
     for x in range(dx):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=1) #@UndefinedVariable
-        u = np.insert(u, u.shape[1], rInfo.noDataValue, axis=1)
+        u = np.insert(u, 0, np.nan, axis=1)
+        u = np.insert(u, u.shape[1], np.nan, axis=1)
     for y in range(dy):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=0)
-        u = np.insert(u, u.shape[0], rInfo.noDataValue, axis=0)
+        u = np.insert(u, 0, np.nan, axis=0)
+        u = np.insert(u, u.shape[0], np.nan, axis=0)
     (uh, uw) = u.shape
-    out = np.zeros(u.shape, dtype=rInfo.dataType)
+    out = np.zeros(u.shape, dtype=float)
 
     for w in range(uw-dx):
         for h in range(uh-dy):
@@ -212,14 +217,15 @@ def rasterRange(raster, mask, rInfo, iterations=1):
             else:
                 m = np.max(s) - np.min(s)
                 out[h+dy,w+dx] = m
-    out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
+    if len(noDataArray[0]) != 0:
+        out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
     return out[dy:-dy,dx:-dx]
 
 
 
 def rasterMedian(raster, mask, rInfo, iterations=1):
     u = raster
-    noDataArray = np.where(u < 0)
+    noDataArray = np.where(np.isnan(u))
 
     (mh, mw) = mask.shape
 
@@ -229,17 +235,16 @@ def rasterMedian(raster, mask, rInfo, iterations=1):
     #hm = dy*2
 
     for x in range(dx):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=1)
-        u = np.insert(u, u.shape[1], rInfo.noDataValue, axis=1)
-
+        u = np.insert(u, 0, np.nan, axis=1)
+        u = np.insert(u, u.shape[1], np.nan, axis=1)
     for y in range(dy):
-        u = np.insert(u, 0, rInfo.noDataValue, axis=0)
-        u = np.insert(u, u.shape[0], rInfo.noDataValue, axis=0)
+        u = np.insert(u, 0, np.nan, axis=0)
+        u = np.insert(u, u.shape[0], np.nan, axis=0)
 
     (uh, uw) = u.shape
     #print u, hm, wm
 
-    out = np.zeros(u.shape, dtype=rInfo.dataType)
+    out = np.zeros(u.shape, dtype=float)
 
     for w in range(uw-dx-1):
         for h in range(uh-dy-1):
@@ -258,8 +263,8 @@ def rasterMedian(raster, mask, rInfo, iterations=1):
                 m = float((p[l2])+p[l2-1])/2
             out[h+dy,w+dx] = m
 
-
-    out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
+    if len(noDataArray[0]) != 0:
+        out[dy:-dy,dx:-dx][noDataArray[0], noDataArray[1]] = np.nan
 
     return out[dy:-dy,dx:-dx]
 
@@ -267,14 +272,15 @@ def rasterMedian(raster, mask, rInfo, iterations=1):
 
 def rasterAverage(raster, mask, rInfo, iterations=1):
     u = raster
-    noDataArray = np.where(u < 0)
+    noDataArray = np.where(np.isnan(u))
     
     count = simpleMaskCount(raster.shape, mask.shape, noDataArray)
 
     out = rasterSum(raster, mask, rInfo)/count
 
-    out[noDataArray[0], noDataArray[1]] = np.nan
-    return out 
+    if len(noDataArray[0]) != 0:
+        out[noDataArray[0], noDataArray[1]] = np.nan
+    return out
 
 
 def simpleMaskCount(rasterShape, maskShape, noDataArray):
@@ -328,7 +334,7 @@ def mask_count(self):
     dy = self.size_y
     wm = dx*2
     hm = dy*2
-    out = np.zeros(u.shape, dtype=float32)
+    out = np.zeros(u.shape, dtype=int)
 
     c = list(self.mask.flatten()).count(0)
     out[hm:-hm,wm:-wm] = self.mask.size-c
@@ -358,7 +364,7 @@ def mask_count(self):
             c = list(self.mask[dy:, :dx+x+1].flatten()).count(0)
             out[y+dy, -(x+1+dx)] = self.mask[dy:, :dx+x+1].size-c
 
-    rast_nan = np.where(u[dy:-dy,dx:-dx]==self.noDataValue)
+    rast_nan = np.where(np.nan(u[dy:-dy,dx:-dx]))
     rast_nan = (rast_nan[0]+dy,rast_nan[1]+dx)
     rev_mask = np.fliplr(self.mask[::-1])
 
@@ -370,19 +376,19 @@ def mask_count(self):
     return out[dy:-dy,dx:-dx]
 
 
-def SaveToFile(FileName, raster, rInfo, type_raster=None):
-    format_raster = "GTiff"
-    driver = gdal.GetDriverByName(format_raster)
-    if type_raster != None:
-        dst_ds = driver.Create( FileName, raster.shape[1], raster.shape[0], 1, dataTypesFromInt[type_raster], ['COMPRESS=DEFLATE'] )
-    else:
-        dst_ds = driver.Create( FileName, raster.shape[1], raster.shape[0], 1, rInfo.gdalDataType, ['COMPRESS=DEFLATE'] )
-    dst_ds.SetGeoTransform( rInfo.geoTransform )
-    dst_ds.SetProjection( rInfo.projection )
-    if rInfo.noDataValue: dst_ds.GetRasterBand(1).SetNoDataValue(rInfo.noDataValue )
-    dst_ds.GetRasterBand(1).WriteArray( raster )
+def SaveToFile(FileName, raster, rInfo):
+    
+    driver = gdal.GetDriverByName("GTiff")
+
+    dst_ds = driver.Create(FileName, raster.shape[1], raster.shape[0], 1, rInfo.gdalDataType, ['COMPRESS=DEFLATE'])
+    dst_ds.SetGeoTransform(rInfo.geoTransform)
+    dst_ds.SetProjection(rInfo.projection)
+    dst_ds.FlushCache()
+    if rInfo.noDataValue:
+        dst_ds.GetRasterBand(1).SetNoDataValue(rInfo.noDataValue )
+    dst_ds.GetRasterBand(1).WriteArray(raster)
     # Once we're done, close properly the dataset
-    dst_ds = None
+    del dst_ds
     
 
     
@@ -406,14 +412,16 @@ def SaveToFile(FileName, raster, rInfo, type_raster=None):
 #     outRaster.SetProjection(outRasterSRS.ExportToWkt())
 #     outband.FlushCache()
 
-def focal_stats(input_raster_path, dimension, focal_function,output_raster_path = None):
+def focal_stats(input_raster_path, dimension, focal_function,output_raster_path = None, show_na = None):
     try:
         mask = np.ones(dimension)
     except:
         print("please input a valid dimension")
         return
     gd = gdal.Open(input_raster_path)
-    raster = gd.ReadAsArray() #array with raster
+    raster = gd.ReadAsArray().astype(float) # get array with raster to float type
+    in_band = gd.GetRasterBand(1)
+    nodata = in_band.GetNoDataValue()
     rInfo = rasterInfo(gd)
     switcher = {
         "mean": rasterAverage,
@@ -424,11 +432,19 @@ def focal_stats(input_raster_path, dimension, focal_function,output_raster_path 
         "sum": rasterSum,
         "range": rasterRange
     }
+
+    print("The dataset has "+str(np.isclose(raster[:,:,None],nodata).any(2).sum())+" pixels with No Data Value (" +
+         str(rInfo.noDataValue)+")")
+    raster[np.isclose(raster[:,:,None],nodata).any(2)] = np.nan # convert all null value to np.nan
+    np.warnings.filterwarnings("ignore", message="invalid value encountered in greater_equal")
     func = switcher.get(focal_function, lambda: "Invalid function name")
     rasteroutput = func(raster, mask, rInfo)
+    rasteroutput[np.isnan(rasteroutput)] = rInfo.noDataValue
     if output_raster_path:
         print("The raster file has been exported to "+output_raster_path)
-        SaveToFile(output_raster_path, rasteroutput, rInfo)
+        SaveToFile(output_raster_path, rasteroutput, rInfo) # the output_type is from datatype int
+    if not show_na:    
+        rasteroutput[np.isclose(rasteroutput[:,:,None],nodata).any(2)] = np.nan
     return(rasteroutput)
 
 
